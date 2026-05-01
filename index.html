@@ -2,160 +2,296 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clan Stats - Личная активность</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Clan Stats - Активность игроков</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             box-sizing: border-box;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-        }
-        body {
-            background: #f0f2f5;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
+
+        body {
+            background-color: #0a0c12;
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+            padding: 24px 16px;
+            color: #eef2ff;
+        }
+
         .container {
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 0 auto;
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            padding: 20px 24px 32px;
+            background: #11161f;
+            border-radius: 32px;
+            padding: 24px 20px 32px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.5);
+            border: 1px solid #2a2f3a;
         }
+
         h1 {
             font-size: 1.8rem;
-            margin: 0 0 8px 0;
-            color: #1e293b;
+            font-weight: 600;
+            background: linear-gradient(135deg, #e0e7ff, #a5b4fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 4px;
         }
+
         .sub {
-            color: #475569;
-            border-bottom: 1px solid #e2e8f0;
+            color: #8a99b4;
+            border-bottom: 1px solid #232833;
             padding-bottom: 16px;
             margin-bottom: 24px;
+            font-size: 0.9rem;
         }
-        .controls {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-bottom: 28px;
-            background: #f8fafc;
+
+        /* Панель управления */
+        .top-panel {
+            background: #0f131c;
+            border-radius: 48px;
             padding: 12px 20px;
-            border-radius: 40px;
-        }
-        .controls label {
-            font-weight: 600;
-            color: #0f172a;
-        }
-        select {
-            font-size: 1rem;
-            padding: 8px 16px;
-            border-radius: 40px;
-            border: 1px solid #cbd5e1;
-            background: white;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        .stats-card {
-            background: #f1f5f9;
-            border-radius: 20px;
-            padding: 16px 20px;
             margin-bottom: 24px;
             display: flex;
-            gap: 24px;
             flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border: 1px solid #252b36;
         }
-        .stat {
-            background: white;
-            border-radius: 28px;
-            padding: 8px 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+
+        .player-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #1a202c;
+            padding: 5px 18px;
+            border-radius: 40px;
         }
-        .stat span:first-child {
+
+        .player-selector label {
             font-weight: 600;
-            color: #334155;
+            color: #b9c7db;
         }
+
+        select {
+            background: #0f131c;
+            border: 1px solid #2e3a48;
+            color: #f0f3fa;
+            padding: 8px 16px;
+            border-radius: 32px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .week-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #1a202c;
+            padding: 5px 16px;
+            border-radius: 56px;
+        }
+
+        .nav-btn {
+            background: #252e3e;
+            border: none;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+            width: 38px;
+            height: 38px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-btn:hover {
+            background: #3b4a60;
+            transform: scale(1.03);
+        }
+
+        .latest-btn {
+            background: #2c3e66;
+            padding: 0 20px;
+            width: auto;
+            font-size: 0.85rem;
+            gap: 6px;
+        }
+
+        .week-range {
+            font-weight: 600;
+            background: #0b0f16;
+            padding: 6px 18px;
+            border-radius: 32px;
+            letter-spacing: 0.3px;
+            font-size: 0.85rem;
+            border: 1px solid #2d3440;
+        }
+
+        /* карточки статистики */
+        .stats-card {
+            background: #0e121b;
+            border-radius: 28px;
+            padding: 16px 24px;
+            margin-bottom: 28px;
+            display: flex;
+            gap: 28px;
+            flex-wrap: wrap;
+            border: 1px solid #272e3a;
+        }
+
+        .stat {
+            background: #171e2a;
+            border-radius: 32px;
+            padding: 6px 20px;
+            box-shadow: inset 0 0 0 1px #2a3342;
+        }
+
+        .stat span:first-child {
+            color: #9aa9c1;
+            font-weight: 500;
+        }
+
         .stat span:last-child {
             font-weight: 800;
-            color: #0f172a;
-            margin-left: 8px;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
+            color: #e2eaff;
+            margin-left: 10px;
         }
+
+        .chart-container {
+            background: #0b0f17;
+            border-radius: 28px;
+            padding: 16px;
+            border: 1px solid #282f3c;
+        }
+
         canvas {
             max-height: 500px;
-            margin-top: 12px;
+            width: 100%;
         }
-        .footer-note {
-            margin-top: 24px;
-            font-size: 0.8rem;
-            color: #64748b;
+
+        .no-data-message {
             text-align: center;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 16px;
+            padding: 60px 20px;
+            font-size: 1.3rem;
+            color: #7d8cad;
+            background: #090c12;
+            border-radius: 28px;
+            letter-spacing: 0.5px;
         }
-        @media (max-width: 640px) {
-            .container { padding: 16px; }
-            .controls { justify-content: space-between; }
+
+        .footer-note {
+            margin-top: 20px;
+            font-size: 0.75rem;
+            color: #5a6a88;
+            text-align: center;
+        }
+
+        button {
+            user-select: none;
+        }
+
+        @media (max-width: 700px) {
+            .top-panel { flex-direction: column; align-items: stretch; }
+            .week-nav { justify-content: space-between; }
+            .week-range { text-align: center; }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>📈 Клановая активность</h1>
-    <div class="sub">Личный клейм по дням + штрафы (красные точки)</div>
+    <h1>📊 Клановая летопись</h1>
+    <div class="sub">Личный клейм • Штрафы • Динамика по дням</div>
 
-    <div class="controls">
-        <label>👥 Игрок:</label>
-        <select id="playerSelect"></select>
+    <div class="top-panel">
+        <div class="player-selector">
+            <label>👥 Игрок</label>
+            <select id="playerSelect"></select>
+        </div>
+        <div class="week-nav">
+            <button class="nav-btn" id="prevWeekBtn" title="Предыдущая неделя">←</button>
+            <span class="week-range" id="weekRangeLabel">—</span>
+            <button class="nav-btn" id="nextWeekBtn" title="Следующая неделя">→</button>
+            <button class="nav-btn latest-btn" id="latestWeekBtn">⟳ Последние данные</button>
+        </div>
     </div>
 
     <div class="stats-card" id="statsPanel">
-        <div class="stat"><span>📅 Всего дней:</span> <span id="totalDays">—</span></div>
+        <div class="stat"><span>📅 Дней в неделе:</span> <span id="totalDays">—</span></div>
         <div class="stat"><span>⭐ Сумма личного:</span> <span id="sumPersonal">—</span></div>
         <div class="stat"><span>⚠️ Штрафов (дней):</span> <span id="penaltyDays">—</span></div>
     </div>
 
-    <canvas id="activityChart" width="800" height="400"></canvas>
+    <div class="chart-container" id="chartContainer">
+        <canvas id="activityChart" width="800" height="400"></canvas>
+    </div>
     <div class="footer-note">
-        🔴 Красная точка = день со штрафом (>0). Наведи на точку для деталей.
+        🔴 Красная точка = штраф 1 | ❌ Красный крест = штраф 3 | Линия показывает тренд
     </div>
 </div>
 
 <script>
-    // ============================================================
-    // 🔽 🔽 🔽 СЮДА ВСТАВЬТЕ ВАШУ CSV-CCЫЛКУ 🔽 🔽 🔽
+    // ==============================================================
+    // >>> ВСТАВЬТЕ СЮДА ВАШУ ПУБЛИЧНУЮ CSV ССЫЛКУ (ФОРМАТ CSV) <<<
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vScSYQuw234lzCGvl3JFkMjtxgqQozaoUX7212HuTqvfUcJMBnGChulTKg-KksinKaTeqwC30whYXg4/pub?gid=2047073177&single=true&output=csv";
-    // ☝️☝️☝️ ЗАМЕНИТЕ ЭТУ ССЫЛКУ НА ВАШУ (полученную на шаге 1) ☝️☝️☝️
-    // ============================================================
-
-    let allData = [];       // сырые данные из CSV
-    let playersMap = new Map(); // ключ: номер игрока -> { name, dataPoints }
+    // ==============================================================
+    
+    let allPlayersData = new Map(); // ключ: номер игрока -> { name, dailyMap: Map(день -> {personal, penalty, date}) }
+    let minGameDay = 1;             // первый игровой день
+    let maxGameDay = 1;             // последний день с данными
+    let currentStartDay = 1;        // стартовый день текущей недели
+    let currentEndDay = 7;          // последний день недели
+    let currentPlayerId = null;
     let chart = null;
 
-    // Функция загрузки CSV
+    // Загрузка CSV
     async function loadCSV() {
         try {
             const response = await fetch(CSV_URL);
             const text = await response.text();
             parseCSV(text);
+            if (allPlayersData.size === 0) {
+                document.querySelector('.chart-container').innerHTML = '<div class="no-data-message">❌ Нет данных. Проверьте CSV ссылку.</div>';
+                return;
+            }
+            // определим глобальные границы дней
+            let allDays = [];
+            for (let player of allPlayersData.values()) {
+                allDays.push(...player.dailyMap.keys());
+            }
+            minGameDay = Math.min(...allDays);
+            maxGameDay = Math.max(...allDays);
+            
+            // последняя неделя с данными -> стартовая позиция
+            const lastWeekStart = Math.max(minGameDay, Math.floor((maxGameDay - 1) / 7) * 7 + 1);
+            currentStartDay = lastWeekStart;
+            currentEndDay = currentStartDay + 6;
+            
             fillPlayerSelect();
-            if (playersMap.size > 0) {
-                const firstPlayerId = playersMap.keys().next().value;
-                document.getElementById('playerSelect').value = firstPlayerId;
-                updateChartForPlayer(firstPlayerId);
+            if (allPlayersData.size) {
+                const firstId = allPlayersData.keys().next().value;
+                document.getElementById('playerSelect').value = firstId;
+                currentPlayerId = firstId;
+                updateUIForCurrentWeek();
             }
         } catch (err) {
-            console.error("Ошибка загрузки CSV:", err);
-            document.querySelector('.controls').innerHTML += '<div style="color:red">❌ Не удалось загрузить CSV. Проверь ссылку (опубликована как CSV) и CORS.</div>';
+            console.error(err);
+            document.querySelector('.chart-container').innerHTML = '<div class="no-data-message">⚠️ Ошибка загрузки CSV. Проверьте ссылку и CORS.</div>';
         }
     }
 
-    // Парсим CSV в массив объектов
+    // Парсинг CSV с учётом кавычек и чисел с запятой
     function parseCSV(csvText) {
         const lines = csvText.split(/\r?\n/);
         if (lines.length < 2) return;
-
         const headers = lines[0].split(',').map(h => h.trim());
         const dayIdx = headers.indexOf('День от старта');
         const dateIdx = headers.indexOf('Дата');
@@ -163,139 +299,180 @@
         const playerNameIdx = headers.indexOf('Имя игрока');
         const personalIdx = headers.indexOf('Личный клейм');
         const penaltyIdx = headers.indexOf('Штраф');
+        if (dayIdx === -1 || playerNumIdx === -1) return;
 
-        if (dayIdx === -1 || playerNumIdx === -1 || personalIdx === -1) {
-            console.error("Не найдены нужные колонки в CSV");
-            return;
-        }
-
-        allData = [];
-        playersMap.clear();
+        allPlayersData.clear();
 
         for (let i = 1; i < lines.length; i++) {
             const line = lines[i].trim();
             if (line === "") continue;
-
-            // Простой парсинг с учётом кавычек (числа с запятой могут быть в кавычках)
             let row = [];
-            let inQuote = false;
-            let current = "";
+            let inQuote = false, current = "";
             for (let ch of line) {
-                if (ch === '"') {
-                    inQuote = !inQuote;
-                } else if (ch === ',' && !inQuote) {
-                    row.push(current.trim());
-                    current = "";
-                } else {
-                    current += ch;
-                }
+                if (ch === '"') inQuote = !inQuote;
+                else if (ch === ',' && !inQuote) { row.push(current); current = ""; }
+                else current += ch;
             }
-            row.push(current.trim());
-
-            const dayNum = parseFloat(row[dayIdx]);
-            // Фильтруем мусор: день от старта должен быть >= 1
+            row.push(current);
+            if (row.length < playerNumIdx+1) continue;
+            
+            const dayNum = parseInt(row[dayIdx]);
             if (isNaN(dayNum) || dayNum < 1) continue;
-
             const playerNum = parseInt(row[playerNumIdx]);
             if (isNaN(playerNum)) continue;
-
-            const playerName = row[playerNameIdx] || `Игрок ${playerNum}`;
-            const personal = parseFloat(row[personalIdx].replace(/,/g, '').replace(/"/g, '')) || 0;
-            const penaltyRaw = (penaltyIdx !== -1) ? parseFloat(row[penaltyIdx].replace(/,/g, '').replace(/"/g, '')) : 0;
-            const penalty = isNaN(penaltyRaw) ? 0 : penaltyRaw;
-            const dateStr = (dateIdx !== -1) ? row[dateIdx] : `День ${dayNum}`;
-
-            if (!playersMap.has(playerNum)) {
-                playersMap.set(playerNum, { name: playerName, dataPoints: [] });
+            const playerName = (row[playerNameIdx] || `Игрок ${playerNum}`).trim();
+            let personal = parseFloat(row[personalIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
+            if (personal > 50000) personal = 0; // защита от выбросов
+            let penalty = parseFloat(row[penaltyIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
+            penalty = Math.min(penalty, 10);
+            const dateStr = (dateIdx !== -1 && row[dateIdx]) ? row[dateIdx] : `День ${dayNum}`;
+            
+            if (!allPlayersData.has(playerNum)) {
+                allPlayersData.set(playerNum, { name: playerName, dailyMap: new Map() });
             }
-            playersMap.get(playerNum).dataPoints.push({
-                day: dayNum,
-                personal: personal,
-                penalty: penalty,
-                date: dateStr
-            });
+            const player = allPlayersData.get(playerNum);
+            if (!player.dailyMap.has(dayNum)) {
+                player.dailyMap.set(dayNum, { personal, penalty, date: dateStr });
+            }
         }
-
-        // сортируем точки по дням для каждого игрока
-        for (let [id, obj] of playersMap.entries()) {
-            obj.dataPoints.sort((a,b) => a.day - b.day);
-        }
+        // сортировка не нужна, карта
     }
 
-    // Заполнить выпадающий список
     function fillPlayerSelect() {
         const select = document.getElementById('playerSelect');
         select.innerHTML = '';
-        const sortedPlayers = Array.from(playersMap.keys()).sort((a,b) => a - b);
-        for (let id of sortedPlayers) {
-            const player = playersMap.get(id);
+        const sorted = Array.from(allPlayersData.keys()).sort((a,b)=>a-b);
+        for (let id of sorted) {
+            const pl = allPlayersData.get(id);
             const option = document.createElement('option');
             option.value = id;
-            option.textContent = `${id}. ${player.name}`;
+            option.textContent = `${id}. ${pl.name}`;
             select.appendChild(option);
-        }
-        if (sortedPlayers.length === 0) {
-            select.innerHTML = '<option>Нет данных</option>';
         }
     }
 
-    // Обновить график и статистику для выбранного игрока
-    function updateChartForPlayer(playerId) {
-        const player = playersMap.get(parseInt(playerId));
-        if (!player || !player.dataPoints.length) return;
+    function getWeekDateRange(startDay) {
+        const endDay = startDay + 6;
+        // приблизительная дата (из данных ищем первый день в выборке)
+        let startDate = `День ${startDay}`;
+        let endDate = `День ${endDay}`;
+        for (let pl of allPlayersData.values()) {
+            const point = pl.dailyMap.get(startDay);
+            if (point && point.date && point.date !== `День ${startDay}`) {
+                startDate = point.date;
+                break;
+            }
+        }
+        for (let pl of allPlayersData.values()) {
+            const point = pl.dailyMap.get(endDay);
+            if (point && point.date && point.date !== `День ${endDay}`) {
+                endDate = point.date;
+                break;
+            }
+        }
+        return `${startDate} – ${endDate}`;
+    }
 
-        const points = player.dataPoints;
-        const days = points.map(p => p.day);
-        const personalVals = points.map(p => p.personal);
-        const penaltyFlags = points.map(p => p.penalty > 0);
+    function updateUIForCurrentWeek() {
+        if (!currentPlayerId) return;
+        const player = allPlayersData.get(currentPlayerId);
+        if (!player) return;
+
+        // собираем точки за текущую неделю (7 дней, даже если нет данных)
+        const weekPoints = [];
+        for (let d = currentStartDay; d <= currentEndDay; d++) {
+            const data = player.dailyMap.get(d);
+            weekPoints.push({
+                day: d,
+                personal: data ? data.personal : null,
+                penalty: data ? data.penalty : 0,
+                date: data ? data.date : `День ${d}`
+            });
+        }
         
-        // Статистика
-        const totalDays = points.length;
-        const sumPersonal = personalVals.reduce((a,b) => a + b, 0).toFixed(0);
-        const penaltyDaysCount = penaltyFlags.filter(f => f === true).length;
+        const hasAnyData = weekPoints.some(p => p.personal !== null);
+        const weekRangeText = getWeekDateRange(currentStartDay);
+        document.getElementById('weekRangeLabel').innerText = weekRangeText;
+
+        if (!hasAnyData) {
+            document.getElementById('chartContainer').innerHTML = '<div class="no-data-message">📭 Нет данных за эту неделю</div>';
+            document.getElementById('totalDays').innerText = '0';
+            document.getElementById('sumPersonal').innerText = '0';
+            document.getElementById('penaltyDays').innerText = '0';
+            if (chart) { chart.destroy(); chart = null; }
+            return;
+        }
+
+        // статистика
+        const existing = weekPoints.filter(p => p.personal !== null);
+        const totalDays = existing.length;
+        const sumPersonal = existing.reduce((acc, p) => acc + p.personal, 0).toFixed(0);
+        const penaltyDaysCount = existing.filter(p => p.penalty > 0).length;
         document.getElementById('totalDays').innerText = totalDays;
         document.getElementById('sumPersonal').innerText = sumPersonal;
         document.getElementById('penaltyDays').innerText = penaltyDaysCount;
 
-        // Готовим датасеты для Chart.js
-        const normalPoints = points.filter(p => p.penalty === 0);
-        const penaltyPoints = points.filter(p => p.penalty > 0);
+        // строим график
+        const normalPoints = weekPoints.filter(p => p.personal !== null && p.penalty === 0);
+        const penalty1Points = weekPoints.filter(p => p.personal !== null && p.penalty === 1);
+        const penalty3Points = weekPoints.filter(p => p.personal !== null && p.penalty >= 3);
         
-        const normalDataset = {
-            label: 'Без штрафа',
-            data: normalPoints.map(p => ({ x: p.day, y: p.personal })),
-            backgroundColor: '#10b981',
-            borderColor: '#10b981',
-            pointRadius: 5,
-            pointHoverRadius: 8,
-            type: 'scatter',
-            showLine: false,
-            order: 2
-        };
+        const linePoints = weekPoints.filter(p => p.personal !== null).map(p => ({ x: p.day, y: p.personal }));
         
-        const penaltyDataset = {
-            label: '⚠️ Штраф',
-            data: penaltyPoints.map(p => ({ x: p.day, y: p.personal })),
-            backgroundColor: '#ef4444',
-            borderColor: '#ef4444',
-            pointRadius: 6,
-            pointHoverRadius: 10,
-            pointStyle: 'circle',
-            type: 'scatter',
-            showLine: false,
-            order: 1
-        };
-        
-        if (chart) {
-            chart.destroy();
-        }
-        
+        const datasets = [
+            {
+                label: 'Личный клейм (тренд)',
+                data: linePoints,
+                type: 'line',
+                borderColor: '#60a5fa',
+                borderWidth: 2.5,
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                fill: false,
+                tension: 0.1,
+                order: 10
+            },
+            {
+                label: '✅ Без штрафа',
+                data: normalPoints.map(p => ({ x: p.day, y: p.personal })),
+                type: 'scatter',
+                backgroundColor: '#34d399',
+                borderColor: '#34d399',
+                pointRadius: 6,
+                pointHoverRadius: 9,
+                showLine: false,
+                order: 5
+            },
+            {
+                label: '⚠️ Штраф 1',
+                data: penalty1Points.map(p => ({ x: p.day, y: p.personal })),
+                type: 'scatter',
+                backgroundColor: '#f97316',
+                borderColor: '#f97316',
+                pointRadius: 9,
+                pointHoverRadius: 12,
+                showLine: false,
+                order: 4
+            },
+            {
+                label: '❌ Штраф 3+',
+                data: penalty3Points.map(p => ({ x: p.day, y: p.personal })),
+                type: 'scatter',
+                backgroundColor: '#ef4444',
+                borderColor: '#ef4444',
+                pointRadius: 12,
+                pointHoverRadius: 15,
+                pointStyle: 'cross',
+                showLine: false,
+                order: 3
+            }
+        ];
+
+        if (chart) chart.destroy();
         const ctx = document.getElementById('activityChart').getContext('2d');
         chart = new Chart(ctx, {
             type: 'scatter',
-            data: {
-                datasets: [normalDataset, penaltyDataset]
-            },
+            data: { datasets },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
@@ -303,45 +480,70 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                const point = context.raw;
-                                const originalPoint = [...normalPoints, ...penaltyPoints].find(p => p.day === point.x && p.personal === point.y);
-                                if (originalPoint) {
-                                    let label = `📅 День ${originalPoint.day} (${originalPoint.date})`;
-                                    label += `\n🎯 Личный: ${originalPoint.personal}`;
-                                    label += `\n⚠️ Штраф: ${originalPoint.penalty}`;
-                                    return label;
+                                const raw = context.raw;
+                                const dayNum = raw.x;
+                                const pointData = weekPoints.find(p => p.day === dayNum);
+                                if (pointData && pointData.personal !== null) {
+                                    return [
+                                        `📅 ${pointData.date} (день ${dayNum})`,
+                                        `🎯 Личный: ${pointData.personal}`,
+                                        `⚠️ Штраф: ${pointData.penalty}`
+                                    ];
                                 }
-                                return `День ${point.x}: ${point.y} очков`;
+                                return `День ${dayNum}: нет данных`;
                             }
                         }
                     },
-                    legend: {
-                        position: 'top',
-                        labels: { usePointStyle: true, boxWidth: 10 }
-                    }
+                    legend: { position: 'top', labels: { color: '#cbd5e6', usePointStyle: true, boxWidth: 12 } }
                 },
                 scales: {
                     x: {
-                        title: { display: true, text: 'День от старта игры', font: { weight: 'bold' } },
-                        ticks: { stepSize: 5, autoSkip: true },
-                        grid: { color: '#e2e8f0' }
+                        title: { display: true, text: 'День от старта', color: '#a0b3d9' },
+                        ticks: { stepSize: 1, color: '#b9c4db', autoSkip: true, maxRotation: 45 },
+                        grid: { color: '#232a36' }
                     },
                     y: {
-                        title: { display: true, text: 'Личный клейм (в день)', font: { weight: 'bold' } },
+                        title: { display: true, text: 'Личный клейм', color: '#a0b3d9' },
                         beginAtZero: true,
-                        grid: { color: '#e2e8f0' }
+                        ticks: { color: '#b9c4db' },
+                        grid: { color: '#232a36' }
                     }
                 }
             }
         });
+        // восстановить контейнер, если ранее было "нет данных"
+        const oldMsg = document.querySelector('#chartContainer .no-data-message');
+        if (oldMsg && chart) {
+            document.getElementById('chartContainer').innerHTML = '<canvas id="activityChart" width="800" height="400"></canvas>';
+            chart = new Chart(document.getElementById('activityChart').getContext('2d'), chart.config);
+        }
     }
 
-    // Слушатель выбора игрока
-    document.getElementById('playerSelect').addEventListener('change', (e) => {
-        updateChartForPlayer(e.target.value);
-    });
+    function navigateWeek(delta) {
+        let newStart = currentStartDay + delta * 7;
+        if (newStart < minGameDay) newStart = minGameDay;
+        if (newStart > maxGameDay + 7) newStart = maxGameDay + 7;
+        currentStartDay = newStart;
+        currentEndDay = currentStartDay + 6;
+        updateUIForCurrentWeek();
+    }
 
-    // Запуск
+    function goToLatestWeek() {
+        const lastWeekStart = Math.max(minGameDay, Math.floor((maxGameDay - 1) / 7) * 7 + 1);
+        currentStartDay = lastWeekStart;
+        currentEndDay = currentStartDay + 6;
+        updateUIForCurrentWeek();
+    }
+
+    // слушатели
+    document.getElementById('playerSelect').addEventListener('change', (e) => {
+        currentPlayerId = parseInt(e.target.value);
+        updateUIForCurrentWeek();
+    });
+    document.getElementById('prevWeekBtn').addEventListener('click', () => navigateWeek(-1));
+    document.getElementById('nextWeekBtn').addEventListener('click', () => navigateWeek(1));
+    document.getElementById('latestWeekBtn').addEventListener('click', goToLatestWeek);
+    
     loadCSV();
 </script>
 </body>
