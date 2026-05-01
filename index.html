@@ -47,7 +47,6 @@
             font-size: 0.85rem;
         }
 
-        /* Панель управления — адаптивная */
         .top-panel {
             background: #0f131c;
             border-radius: 32px;
@@ -141,7 +140,6 @@
             flex: 1;
         }
 
-        /* карточки статистики */
         .stats-card {
             background: #0e121b;
             border-radius: 28px;
@@ -177,24 +175,27 @@
             margin-left: 8px;
         }
 
-        /* КОНТЕЙНЕР ГРАФИКА — ВЫСОТА УВЕЛИЧЕНА */
+        /* КОНТЕЙНЕР ГРАФИКА — ВЫСОТА ЗАДАЁТСЯ ЧЕРЕЗ CSS */
         .chart-container {
             background: #0b0f17;
             border-radius: 28px;
             padding: 12px;
             border: 1px solid #282f3c;
-            min-height: 460px;
+            height: 460px;
+            position: relative;
         }
 
-        canvas {
-            max-height: 460px;
+        .chart-container canvas {
             width: 100%;
-            height: auto;
+            height: 100% !important;
         }
 
         .no-data-message {
             text-align: center;
-            padding: 80px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
             font-size: 1.2rem;
             color: #7d8cad;
             background: #090c12;
@@ -209,7 +210,7 @@
             text-align: center;
         }
 
-        /* ДЛЯ ТЕЛЕФОНОВ — ДОПОЛНИТЕЛЬНЫЕ ПРАВКИ */
+        /* МОБИЛЬНАЯ ВЕРСИЯ */
         @media (max-width: 560px) {
             body {
                 padding: 8px;
@@ -246,18 +247,14 @@
                 text-align: center;
             }
             .chart-container {
+                height: 420px;
                 padding: 8px;
-                min-height: 380px;
-            }
-            canvas {
-                max-height: 380px;
             }
             .footer-note {
                 font-size: 0.65rem;
             }
         }
 
-        /* Для очень маленьких экранов — дополнительные точечные правки */
         @media (max-width: 400px) {
             .nav-btn {
                 font-size: 1rem;
@@ -268,6 +265,9 @@
             }
             .stat span:last-child {
                 font-size: 1rem;
+            }
+            .chart-container {
+                height: 380px;
             }
         }
 
@@ -302,7 +302,7 @@
     </div>
 
     <div class="chart-container" id="chartContainer">
-        <canvas id="activityChart" width="800" height="450"></canvas>
+        <canvas id="activityChart"></canvas>
     </div>
     <div class="footer-note">
         🔴 Красная точка = штраф 1 | ❌ Красный крест = штраф 3 | Линия показывает тренд
@@ -329,7 +329,7 @@
             const text = await response.text();
             parseCSV(text);
             if (allPlayersData.size === 0) {
-                document.querySelector('.chart-container').innerHTML = '<div class="no-data-message">❌ Нет данных. Проверьте CSV ссылку.</div>';
+                document.getElementById('chartContainer').innerHTML = '<div class="no-data-message">❌ Нет данных. Проверьте CSV ссылку.</div>';
                 return;
             }
             let allDays = [];
@@ -352,7 +352,7 @@
             }
         } catch (err) {
             console.error(err);
-            document.querySelector('.chart-container').innerHTML = '<div class="no-data-message">⚠️ Ошибка загрузки CSV. Проверьте ссылку.</div>';
+            document.getElementById('chartContainer').innerHTML = '<div class="no-data-message">⚠️ Ошибка загрузки CSV. Проверьте ссылку.</div>';
         }
     }
 
@@ -467,6 +467,12 @@
             return;
         }
 
+        // Восстанавливаем canvas если было сообщение
+        const oldMsg = document.querySelector('#chartContainer .no-data-message');
+        if (oldMsg) {
+            document.getElementById('chartContainer').innerHTML = '<canvas id="activityChart"></canvas>';
+        }
+
         const existing = weekPoints.filter(p => p.personal !== null);
         const totalDays = existing.length;
         const sumPersonal = existing.reduce((acc, p) => acc + p.personal, 0).toFixed(0);
@@ -494,7 +500,7 @@
             data: { datasets },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,   // ← КЛЮЧЕВОЙ ПАРАМЕТР
                 plugins: {
                     tooltip: {
                         callbacks: {
@@ -517,12 +523,6 @@
                 }
             }
         });
-        
-        const oldMsg = document.querySelector('#chartContainer .no-data-message');
-        if (oldMsg && chart) {
-            document.getElementById('chartContainer').innerHTML = '<canvas id="activityChart" width="800" height="450"></canvas>';
-            chart = new Chart(document.getElementById('activityChart').getContext('2d'), chart.config);
-        }
     }
 
     function navigateWeek(delta) {
