@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Clan Stats - Активность игроков</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -15,7 +15,7 @@
         body {
             background-color: #0a0c12;
             font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
-            padding: 24px 16px;
+            padding: 16px 12px;
             color: #eef2ff;
         }
 
@@ -23,14 +23,14 @@
             max-width: 1300px;
             margin: 0 auto;
             background: #11161f;
-            border-radius: 32px;
-            padding: 24px 20px 32px;
+            border-radius: 28px;
+            padding: 20px 16px 28px;
             box-shadow: 0 20px 35px -12px rgba(0,0,0,0.5);
             border: 1px solid #2a2f3a;
         }
 
         h1 {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 600;
             background: linear-gradient(135deg, #e0e7ff, #a5b4fc);
             -webkit-background-clip: text;
@@ -42,85 +42,90 @@
         .sub {
             color: #8a99b4;
             border-bottom: 1px solid #232833;
-            padding-bottom: 16px;
-            margin-bottom: 24px;
-            font-size: 0.9rem;
+            padding-bottom: 14px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
         }
 
-        /* Панель управления */
+        /* Панель управления — адаптивная */
         .top-panel {
             background: #0f131c;
-            border-radius: 48px;
-            padding: 12px 20px;
-            margin-bottom: 24px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
+            border-radius: 32px;
+            padding: 16px;
+            margin-bottom: 20px;
             border: 1px solid #252b36;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
         }
 
         .player-selector {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 12px;
             background: #1a202c;
-            padding: 5px 18px;
-            border-radius: 40px;
+            padding: 8px 18px;
+            border-radius: 60px;
+            flex-wrap: wrap;
         }
 
         .player-selector label {
             font-weight: 600;
             color: #b9c7db;
+            font-size: 0.9rem;
         }
 
         select {
             background: #0f131c;
             border: 1px solid #2e3a48;
             color: #f0f3fa;
-            padding: 8px 16px;
-            border-radius: 32px;
+            padding: 10px 16px;
+            border-radius: 40px;
             font-weight: 500;
             font-size: 0.9rem;
             cursor: pointer;
             outline: none;
+            flex: 1;
+            min-width: 140px;
         }
 
         .week-nav {
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: space-between;
+            gap: 10px;
             background: #1a202c;
-            padding: 5px 16px;
-            border-radius: 56px;
+            padding: 8px 12px;
+            border-radius: 60px;
+            flex-wrap: wrap;
         }
 
         .nav-btn {
             background: #252e3e;
             border: none;
             color: white;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: bold;
-            width: 38px;
-            height: 38px;
-            border-radius: 40px;
+            min-width: 44px;
+            height: 44px;
+            border-radius: 44px;
             cursor: pointer;
             transition: 0.2s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            padding: 0 12px;
         }
 
         .nav-btn:hover {
             background: #3b4a60;
-            transform: scale(1.03);
+            transform: scale(1.02);
         }
 
         .latest-btn {
             background: #2c3e66;
-            padding: 0 20px;
-            width: auto;
+            padding: 0 18px;
             font-size: 0.85rem;
             gap: 6px;
         }
@@ -128,60 +133,69 @@
         .week-range {
             font-weight: 600;
             background: #0b0f16;
-            padding: 6px 18px;
-            border-radius: 32px;
-            letter-spacing: 0.3px;
-            font-size: 0.85rem;
+            padding: 8px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
             border: 1px solid #2d3440;
+            text-align: center;
+            flex: 1;
         }
 
         /* карточки статистики */
         .stats-card {
             background: #0e121b;
             border-radius: 28px;
-            padding: 16px 24px;
-            margin-bottom: 28px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
             display: flex;
-            gap: 28px;
+            gap: 16px;
             flex-wrap: wrap;
             border: 1px solid #272e3a;
+            justify-content: space-between;
         }
 
         .stat {
             background: #171e2a;
             border-radius: 32px;
-            padding: 6px 20px;
+            padding: 8px 18px;
             box-shadow: inset 0 0 0 1px #2a3342;
+            flex: 1;
+            text-align: center;
+            min-width: 100px;
         }
 
         .stat span:first-child {
             color: #9aa9c1;
             font-weight: 500;
+            font-size: 0.8rem;
         }
 
         .stat span:last-child {
             font-weight: 800;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             color: #e2eaff;
-            margin-left: 10px;
+            margin-left: 8px;
         }
 
+        /* КОНТЕЙНЕР ГРАФИКА — ВЫСОТА УВЕЛИЧЕНА */
         .chart-container {
             background: #0b0f17;
             border-radius: 28px;
-            padding: 16px;
+            padding: 12px;
             border: 1px solid #282f3c;
+            min-height: 460px;
         }
 
         canvas {
-            max-height: 500px;
+            max-height: 460px;
             width: 100%;
+            height: auto;
         }
 
         .no-data-message {
             text-align: center;
-            padding: 60px 20px;
-            font-size: 1.3rem;
+            padding: 80px 20px;
+            font-size: 1.2rem;
             color: #7d8cad;
             background: #090c12;
             border-radius: 28px;
@@ -190,19 +204,76 @@
 
         .footer-note {
             margin-top: 20px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #5a6a88;
             text-align: center;
         }
 
-        button {
-            user-select: none;
+        /* ДЛЯ ТЕЛЕФОНОВ — ДОПОЛНИТЕЛЬНЫЕ ПРАВКИ */
+        @media (max-width: 560px) {
+            body {
+                padding: 8px;
+            }
+            .container {
+                padding: 16px 12px;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
+            .player-selector {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .week-nav {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .week-range {
+                text-align: center;
+                order: -1;
+                margin-bottom: 6px;
+            }
+            .nav-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .stats-card {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .stat {
+                text-align: center;
+            }
+            .chart-container {
+                padding: 8px;
+                min-height: 380px;
+            }
+            canvas {
+                max-height: 380px;
+            }
+            .footer-note {
+                font-size: 0.65rem;
+            }
         }
 
-        @media (max-width: 700px) {
-            .top-panel { flex-direction: column; align-items: stretch; }
-            .week-nav { justify-content: space-between; }
-            .week-range { text-align: center; }
+        /* Для очень маленьких экранов — дополнительные точечные правки */
+        @media (max-width: 400px) {
+            .nav-btn {
+                font-size: 1rem;
+                min-height: 44px;
+            }
+            .week-range {
+                font-size: 0.7rem;
+            }
+            .stat span:last-child {
+                font-size: 1rem;
+            }
+        }
+
+        button {
+            user-select: none;
+            touch-action: manipulation;
         }
     </style>
 </head>
@@ -217,9 +288,9 @@
             <select id="playerSelect"></select>
         </div>
         <div class="week-nav">
-            <button class="nav-btn" id="prevWeekBtn" title="Предыдущая неделя">←</button>
+            <button class="nav-btn" id="prevWeekBtn" title="Предыдущая неделя">← Назад</button>
             <span class="week-range" id="weekRangeLabel">—</span>
-            <button class="nav-btn" id="nextWeekBtn" title="Следующая неделя">→</button>
+            <button class="nav-btn" id="nextWeekBtn" title="Следующая неделя">Вперёд →</button>
             <button class="nav-btn latest-btn" id="latestWeekBtn">⟳ Последние данные</button>
         </div>
     </div>
@@ -231,7 +302,7 @@
     </div>
 
     <div class="chart-container" id="chartContainer">
-        <canvas id="activityChart" width="800" height="400"></canvas>
+        <canvas id="activityChart" width="800" height="450"></canvas>
     </div>
     <div class="footer-note">
         🔴 Красная точка = штраф 1 | ❌ Красный крест = штраф 3 | Линия показывает тренд
@@ -244,15 +315,14 @@
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vScSYQuw234lzCGvl3JFkMjtxgqQozaoUX7212HuTqvfUcJMBnGChulTKg-KksinKaTeqwC30whYXg4/pub?gid=2047073177&single=true&output=csv";
     // ==============================================================
     
-    let allPlayersData = new Map(); // ключ: номер игрока -> { name, dailyMap: Map(день -> {personal, penalty, date}) }
-    let minGameDay = 1;             // первый игровой день
-    let maxGameDay = 1;             // последний день с данными
-    let currentStartDay = 1;        // стартовый день текущей недели
-    let currentEndDay = 7;          // последний день недели
+    let allPlayersData = new Map();
+    let minGameDay = 1;
+    let maxGameDay = 1;
+    let currentStartDay = 1;
+    let currentEndDay = 7;
     let currentPlayerId = null;
     let chart = null;
 
-    // Загрузка CSV
     async function loadCSV() {
         try {
             const response = await fetch(CSV_URL);
@@ -262,19 +332,17 @@
                 document.querySelector('.chart-container').innerHTML = '<div class="no-data-message">❌ Нет данных. Проверьте CSV ссылку.</div>';
                 return;
             }
-            // определим глобальные границы дней
             let allDays = [];
             for (let player of allPlayersData.values()) {
                 allDays.push(...player.dailyMap.keys());
             }
-            minGameDay = Math.min(...allDays);
-            maxGameDay = Math.max(...allDays);
-            
-            // последняя неделя с данными -> стартовая позиция
-            const lastWeekStart = Math.max(minGameDay, Math.floor((maxGameDay - 1) / 7) * 7 + 1);
-            currentStartDay = lastWeekStart;
-            currentEndDay = currentStartDay + 6;
-            
+            if (allDays.length) {
+                minGameDay = Math.min(...allDays);
+                maxGameDay = Math.max(...allDays);
+                const lastWeekStart = Math.max(minGameDay, Math.floor((maxGameDay - 1) / 7) * 7 + 1);
+                currentStartDay = lastWeekStart;
+                currentEndDay = currentStartDay + 6;
+            }
             fillPlayerSelect();
             if (allPlayersData.size) {
                 const firstId = allPlayersData.keys().next().value;
@@ -284,11 +352,10 @@
             }
         } catch (err) {
             console.error(err);
-            document.querySelector('.chart-container').innerHTML = '<div class="no-data-message">⚠️ Ошибка загрузки CSV. Проверьте ссылку и CORS.</div>';
+            document.querySelector('.chart-container').innerHTML = '<div class="no-data-message">⚠️ Ошибка загрузки CSV. Проверьте ссылку.</div>';
         }
     }
 
-    // Парсинг CSV с учётом кавычек и чисел с запятой
     function parseCSV(csvText) {
         const lines = csvText.split(/\r?\n/);
         if (lines.length < 2) return;
@@ -322,7 +389,7 @@
             if (isNaN(playerNum)) continue;
             const playerName = (row[playerNameIdx] || `Игрок ${playerNum}`).trim();
             let personal = parseFloat(row[personalIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
-            if (personal > 50000) personal = 0; // защита от выбросов
+            if (personal > 50000) personal = 0;
             let penalty = parseFloat(row[penaltyIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
             penalty = Math.min(penalty, 10);
             const dateStr = (dateIdx !== -1 && row[dateIdx]) ? row[dateIdx] : `День ${dayNum}`;
@@ -335,7 +402,6 @@
                 player.dailyMap.set(dayNum, { personal, penalty, date: dateStr });
             }
         }
-        // сортировка не нужна, карта
     }
 
     function fillPlayerSelect() {
@@ -353,7 +419,6 @@
 
     function getWeekDateRange(startDay) {
         const endDay = startDay + 6;
-        // приблизительная дата (из данных ищем первый день в выборке)
         let startDate = `День ${startDay}`;
         let endDate = `День ${endDay}`;
         for (let pl of allPlayersData.values()) {
@@ -378,7 +443,6 @@
         const player = allPlayersData.get(currentPlayerId);
         if (!player) return;
 
-        // собираем точки за текущую неделю (7 дней, даже если нет данных)
         const weekPoints = [];
         for (let d = currentStartDay; d <= currentEndDay; d++) {
             const data = player.dailyMap.get(d);
@@ -403,7 +467,6 @@
             return;
         }
 
-        // статистика
         const existing = weekPoints.filter(p => p.personal !== null);
         const totalDays = existing.length;
         const sumPersonal = existing.reduce((acc, p) => acc + p.personal, 0).toFixed(0);
@@ -412,60 +475,16 @@
         document.getElementById('sumPersonal').innerText = sumPersonal;
         document.getElementById('penaltyDays').innerText = penaltyDaysCount;
 
-        // строим график
         const normalPoints = weekPoints.filter(p => p.personal !== null && p.penalty === 0);
         const penalty1Points = weekPoints.filter(p => p.personal !== null && p.penalty === 1);
         const penalty3Points = weekPoints.filter(p => p.personal !== null && p.penalty >= 3);
-        
         const linePoints = weekPoints.filter(p => p.personal !== null).map(p => ({ x: p.day, y: p.personal }));
         
         const datasets = [
-            {
-                label: 'Личный клейм (тренд)',
-                data: linePoints,
-                type: 'line',
-                borderColor: '#60a5fa',
-                borderWidth: 2.5,
-                pointRadius: 0,
-                pointHoverRadius: 0,
-                fill: false,
-                tension: 0.1,
-                order: 10
-            },
-            {
-                label: '✅ Без штрафа',
-                data: normalPoints.map(p => ({ x: p.day, y: p.personal })),
-                type: 'scatter',
-                backgroundColor: '#34d399',
-                borderColor: '#34d399',
-                pointRadius: 6,
-                pointHoverRadius: 9,
-                showLine: false,
-                order: 5
-            },
-            {
-                label: '⚠️ Штраф 1',
-                data: penalty1Points.map(p => ({ x: p.day, y: p.personal })),
-                type: 'scatter',
-                backgroundColor: '#f97316',
-                borderColor: '#f97316',
-                pointRadius: 9,
-                pointHoverRadius: 12,
-                showLine: false,
-                order: 4
-            },
-            {
-                label: '❌ Штраф 3+',
-                data: penalty3Points.map(p => ({ x: p.day, y: p.personal })),
-                type: 'scatter',
-                backgroundColor: '#ef4444',
-                borderColor: '#ef4444',
-                pointRadius: 12,
-                pointHoverRadius: 15,
-                pointStyle: 'cross',
-                showLine: false,
-                order: 3
-            }
+            { label: 'Личный клейм (тренд)', data: linePoints, type: 'line', borderColor: '#60a5fa', borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 0, fill: false, tension: 0.1, order: 10 },
+            { label: '✅ Без штрафа', data: normalPoints.map(p => ({ x: p.day, y: p.personal })), type: 'scatter', backgroundColor: '#34d399', borderColor: '#34d399', pointRadius: 6, pointHoverRadius: 9, showLine: false, order: 5 },
+            { label: '⚠️ Штраф 1', data: penalty1Points.map(p => ({ x: p.day, y: p.personal })), type: 'scatter', backgroundColor: '#f97316', borderColor: '#f97316', pointRadius: 9, pointHoverRadius: 12, showLine: false, order: 4 },
+            { label: '❌ Штраф 3+', data: penalty3Points.map(p => ({ x: p.day, y: p.personal })), type: 'scatter', backgroundColor: '#ef4444', borderColor: '#ef4444', pointRadius: 12, pointHoverRadius: 15, pointStyle: 'cross', showLine: false, order: 3 }
         ];
 
         if (chart) chart.destroy();
@@ -484,11 +503,7 @@
                                 const dayNum = raw.x;
                                 const pointData = weekPoints.find(p => p.day === dayNum);
                                 if (pointData && pointData.personal !== null) {
-                                    return [
-                                        `📅 ${pointData.date} (день ${dayNum})`,
-                                        `🎯 Личный: ${pointData.personal}`,
-                                        `⚠️ Штраф: ${pointData.penalty}`
-                                    ];
+                                    return [`📅 ${pointData.date} (день ${dayNum})`, `🎯 Личный: ${pointData.personal}`, `⚠️ Штраф: ${pointData.penalty}`];
                                 }
                                 return `День ${dayNum}: нет данных`;
                             }
@@ -497,24 +512,15 @@
                     legend: { position: 'top', labels: { color: '#cbd5e6', usePointStyle: true, boxWidth: 12 } }
                 },
                 scales: {
-                    x: {
-                        title: { display: true, text: 'День от старта', color: '#a0b3d9' },
-                        ticks: { stepSize: 1, color: '#b9c4db', autoSkip: true, maxRotation: 45 },
-                        grid: { color: '#232a36' }
-                    },
-                    y: {
-                        title: { display: true, text: 'Личный клейм', color: '#a0b3d9' },
-                        beginAtZero: true,
-                        ticks: { color: '#b9c4db' },
-                        grid: { color: '#232a36' }
-                    }
+                    x: { title: { display: true, text: 'День от старта', color: '#a0b3d9' }, ticks: { stepSize: 1, color: '#b9c4db', autoSkip: true, maxRotation: 45 }, grid: { color: '#232a36' } },
+                    y: { title: { display: true, text: 'Личный клейм', color: '#a0b3d9' }, beginAtZero: true, ticks: { color: '#b9c4db' }, grid: { color: '#232a36' } }
                 }
             }
         });
-        // восстановить контейнер, если ранее было "нет данных"
+        
         const oldMsg = document.querySelector('#chartContainer .no-data-message');
         if (oldMsg && chart) {
-            document.getElementById('chartContainer').innerHTML = '<canvas id="activityChart" width="800" height="400"></canvas>';
+            document.getElementById('chartContainer').innerHTML = '<canvas id="activityChart" width="800" height="450"></canvas>';
             chart = new Chart(document.getElementById('activityChart').getContext('2d'), chart.config);
         }
     }
@@ -535,7 +541,6 @@
         updateUIForCurrentWeek();
     }
 
-    // слушатели
     document.getElementById('playerSelect').addEventListener('change', (e) => {
         currentPlayerId = parseInt(e.target.value);
         updateUIForCurrentWeek();
