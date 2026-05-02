@@ -490,7 +490,7 @@
             { label: 'Личный клейм (тренд)', data: linePoints, type: 'line', borderColor: '#60a5fa', borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 0, fill: false, tension: 0.1, order: 10 },
             { label: '✅ Без штрафа', data: normalPoints.map(p => ({ x: p.day, y: p.personal })), type: 'scatter', backgroundColor: '#34d399', borderColor: '#34d399', pointRadius: 6, pointHoverRadius: 9, showLine: false, order: 5 },
             { label: '⚠️ Штраф 1', data: penalty1Points.map(p => ({ x: p.day, y: p.personal })), type: 'scatter', backgroundColor: '#f97316', borderColor: '#f97316', pointRadius: 9, pointHoverRadius: 12, showLine: false, order: 4 },
-            { label: '❌ Штраф 3+', data: penalty3Points.map(p => ({ x: p.day, y: p.personal })), type: 'scatter', backgroundColor: '#ef4444', borderColor: '#ef4444', pointRadius: 15, borderWidth: 3, pointHoverRadius: 15, pointStyle: 'cross', showLine: false, order: 3 }
+            { label: '❌ Штраф 3+', data: penalty3Points.map(p => ({ x: p.day, y: p.personal })), type: 'scatter', backgroundColor: '#ef4444', borderColor: '#ef4444', pointRadius: 12, borderWidth: 3, pointHoverRadius: 15, pointStyle: 'cross', showLine: false, order: 3 }
         ];
 
         if (chart) chart.destroy();
