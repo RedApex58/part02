@@ -6,6 +6,7 @@
     <title>Part0x - Активность игроков</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* --- Ваши стили остались без изменений --- */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -140,18 +141,23 @@
             flex: 1;
         }
 
+        /* Стили для двух рядов статистики */
+        .stats-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
         .stats-card {
             background: #0e121b;
             border-radius: 28px;
             padding: 16px 20px;
-            margin-bottom: 24px;
             display: flex;
             gap: 16px;
             flex-wrap: wrap;
             border: 1px solid #272e3a;
             justify-content: space-between;
         }
-
         .stat {
             background: #171e2a;
             border-radius: 32px;
@@ -161,13 +167,11 @@
             text-align: center;
             min-width: 100px;
         }
-
         .stat span:first-child {
             color: #9aa9c1;
             font-weight: 500;
             font-size: 0.8rem;
         }
-
         .stat span:last-child {
             font-weight: 800;
             font-size: 1.2rem;
@@ -175,7 +179,6 @@
             margin-left: 8px;
         }
 
-        /* КОНТЕЙНЕР ГРАФИКА — ВЫСОТА ЗАДАЁТСЯ ЧЕРЕЗ CSS */
         .chart-container {
             background: #0b0f17;
             border-radius: 28px;
@@ -210,68 +213,25 @@
             text-align: center;
         }
 
-        /* МОБИЛЬНАЯ ВЕРСИЯ */
         @media (max-width: 560px) {
-            body {
-                padding: 8px;
-            }
-            .container > div:first-child {
-            flex-direction: column;
-            text-align: center;
-            }
-            h1 {
-                font-size: 1.4rem;
-            }
-            .player-selector {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-            }
-            .week-nav {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .week-range {
-                text-align: center;
-                order: -1;
-                margin-bottom: 6px;
-            }
-            .nav-btn {
-                width: 100%;
-                justify-content: center;
-            }
-            .stats-card {
-                flex-direction: column;
-                gap: 10px;
-            }
-            .stat {
-                text-align: center;
-            }
-            .chart-container {
-                height: 420px;
-                padding: 8px;
-            }
-            .footer-note {
-                font-size: 0.65rem;
-            }
+            body { padding: 8px; }
+            .container > div:first-child { flex-direction: column; text-align: center; }
+            h1 { font-size: 1.4rem; }
+            .player-selector { flex-direction: column; align-items: stretch; gap: 10px; }
+            .week-nav { flex-direction: column; align-items: stretch; }
+            .week-range { text-align: center; order: -1; margin-bottom: 6px; }
+            .nav-btn { width: 100%; justify-content: center; }
+            .stats-card { flex-direction: column; gap: 10px; }
+            .stat { text-align: center; }
+            .chart-container { height: 420px; padding: 8px; }
+            .footer-note { font-size: 0.65rem; }
         }
-
         @media (max-width: 400px) {
-            .nav-btn {
-                font-size: 1rem;
-                min-height: 44px;
-            }
-            .week-range {
-                font-size: 0.7rem;
-            }
-            .stat span:last-child {
-                font-size: 1rem;
-            }
-            .chart-container {
-                height: 380px;
-            }
+            .nav-btn { font-size: 1rem; min-height: 44px; }
+            .week-range { font-size: 0.7rem; }
+            .stat span:last-child { font-size: 1rem; }
+            .chart-container { height: 380px; }
         }
-
         button {
             user-select: none;
             touch-action: manipulation;
@@ -281,12 +241,12 @@
 <body>
 <div class="container">
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
-    <div>
-        <h1 style="margin: 0;">  Клановая летопись</h1>
-        <div class="sub" style="margin: 0;">Личный клейм • Штрафы • Динамика по дням</div>
+        <div>
+            <h1 style="margin: 0;">Клановая летопись</h1>
+            <div class="sub" style="margin: 0;">Личный клейм • Штрафы • Динамика по дням</div>
+        </div>
+        <img src="logo.png" alt="Логотип клана" style="height: 60px; width: auto;">
     </div>
-    <img src="logo.png" alt="Логотип клана" style="height: 60px; width: auto;">
-</div>
 
     <div class="top-panel">
         <div class="player-selector">
@@ -301,10 +261,18 @@
         </div>
     </div>
 
-    <div class="stats-card" id="statsPanel">
+    <!-- ПЕРВЫЙ РЯД: Базовые показатели -->
+    <div class="stats-card">
         <div class="stat"><span>📅 Дней в неделе:</span> <span id="totalDays">—</span></div>
-        <div class="stat"><span>⭐ принес в казну:</span> <span id="sumPersonal">—</span></div>
+        <div class="stat"><span>⭐ Принес в казну:</span> <span id="sumPersonal">—</span></div>
         <div class="stat"><span>⚠️ Штрафов (дней):</span> <span id="penaltyDays">—</span></div>
+    </div>
+
+    <!-- ВТОРОЙ РЯД: Финансовые показатели -->
+    <div class="stats-card">
+        <div class="stat"><span>💰 Личный доход:</span> <span id="sumIncome">—</span></div>
+        <div class="stat"><span>🎁 Бонус:</span> <span id="sumBonus">—</span></div>
+        <div class="stat"><span>💳 К выплате:</span> <span id="sumPayout">—</span></div>
     </div>
 
     <div class="chart-container" id="chartContainer">
@@ -317,7 +285,7 @@
 
 <script>
     // ==============================================================
-    // >>> ВСТАВЬТЕ СЮДА ВАШУ ПУБЛИЧНУЮ CSV ССЫЛКУ (ФОРМАТ CSV) <<<
+    // >>> ВАША CSV ССЫЛКА (ОСТАЁТСЯ БЕЗ ИЗМЕНЕНИЙ) <<<
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vScSYQuw234lzCGvl3JFkMjtxgqQozaoUX7212HuTqvfUcJMBnGChulTKg-KksinKaTeqwC30whYXg4/pub?gid=2047073177&single=true&output=csv&nocache=1";
     // ==============================================================
     
@@ -370,8 +338,14 @@
         const dateIdx = headers.indexOf('Дата');
         const playerNumIdx = headers.indexOf('Номер игрока');
         const playerNameIdx = headers.indexOf('Имя игрока');
+        
+        // ИНДЕКСЫ ДЛЯ НОВЫХ ПОЛЕЙ
         const personalIdx = headers.indexOf('Клановый клейм');
         const penaltyIdx = headers.indexOf('Штраф');
+        const incomeIdx = headers.indexOf('Личный доход');
+        const bonusIdx = headers.indexOf('Бонус');
+        const payoutIdx = headers.indexOf('К выплате');
+
         if (dayIdx === -1 || playerNumIdx === -1) return;
 
         allPlayersData.clear();
@@ -394,10 +368,17 @@
             const playerNum = parseInt(row[playerNumIdx]);
             if (isNaN(playerNum)) continue;
             const playerName = (row[playerNameIdx] || `Игрок ${playerNum}`).trim();
+            
+            // Чтение данных
             let personal = parseFloat(row[personalIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
             if (personal > 50000) personal = 0;
             let penalty = parseFloat(row[penaltyIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
             penalty = Math.min(penalty, 10);
+            // Чтение новых финансовых полей
+            let income = parseFloat(row[incomeIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
+            let bonus = parseFloat(row[bonusIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
+            let payout = parseFloat(row[payoutIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
+
             const dateStr = (dateIdx !== -1 && row[dateIdx]) ? row[dateIdx] : `День ${dayNum}`;
             
             if (!allPlayersData.has(playerNum)) {
@@ -405,7 +386,13 @@
             }
             const player = allPlayersData.get(playerNum);
             if (!player.dailyMap.has(dayNum)) {
-                player.dailyMap.set(dayNum, { personal, penalty, date: dateStr });
+                // Сохраняем все три финансовых показателя
+                player.dailyMap.set(dayNum, { 
+                    personal, penalty, date: dateStr,
+                    income: income,
+                    bonus: bonus,
+                    payout: payout
+                });
             }
         }
     }
@@ -450,14 +437,28 @@
         if (!player) return;
 
         const weekPoints = [];
+        // Собираем точки за неделю
         for (let d = currentStartDay; d <= currentEndDay; d++) {
             const data = player.dailyMap.get(d);
-            weekPoints.push({
-                day: d,
-                personal: data ? data.personal : null,
-                penalty: data ? data.penalty : 0,
-                date: data ? data.date : `День ${d}`
-            });
+            if (data) {
+                weekPoints.push({
+                    day: d,
+                    personal: data.personal,
+                    penalty: data.penalty,
+                    date: data.date,
+                    income: data.income,
+                    bonus: data.bonus,
+                    payout: data.payout
+                });
+            } else {
+                weekPoints.push({
+                    day: d,
+                    personal: null,
+                    penalty: 0,
+                    date: `День ${d}`,
+                    income: 0, bonus: 0, payout: 0
+                });
+            }
         }
         
         const hasAnyData = weekPoints.some(p => p.personal !== null);
@@ -469,6 +470,10 @@
             document.getElementById('totalDays').innerText = '0';
             document.getElementById('sumPersonal').innerText = '0';
             document.getElementById('penaltyDays').innerText = '0';
+            // Обнуляем финансовые показатели
+            document.getElementById('sumIncome').innerText = '0';
+            document.getElementById('sumBonus').innerText = '0';
+            document.getElementById('sumPayout').innerText = '0';
             if (chart) { chart.destroy(); chart = null; }
             return;
         }
@@ -483,9 +488,18 @@
         const totalDays = existing.length;
         const sumPersonal = existing.reduce((acc, p) => acc + p.personal, 0).toFixed(0);
         const penaltyDaysCount = existing.filter(p => p.penalty > 0).length;
+        
+        // Суммируем финансовые показатели за НЕДЕЛЮ
+        const sumIncome = existing.reduce((acc, p) => acc + p.income, 0);
+        const sumBonus = existing.reduce((acc, p) => acc + p.bonus, 0);
+        const sumPayout = existing.reduce((acc, p) => acc + p.payout, 0);
+
         document.getElementById('totalDays').innerText = totalDays;
         document.getElementById('sumPersonal').innerText = sumPersonal;
         document.getElementById('penaltyDays').innerText = penaltyDaysCount;
+        document.getElementById('sumIncome').innerText = sumIncome.toFixed(0);
+        document.getElementById('sumBonus').innerText = sumBonus.toFixed(0);
+        document.getElementById('sumPayout').innerText = sumPayout.toFixed(0);
 
         const normalPoints = weekPoints.filter(p => p.personal !== null && p.penalty === 0);
         const penalty1Points = weekPoints.filter(p => p.personal !== null && p.penalty === 1);
@@ -506,7 +520,7 @@
             data: { datasets },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,   // ← КЛЮЧЕВОЙ ПАРАМЕТР
+                maintainAspectRatio: false,
                 plugins: {
                     tooltip: {
                         callbacks: {
@@ -515,7 +529,14 @@
                                 const dayNum = raw.x;
                                 const pointData = weekPoints.find(p => p.day === dayNum);
                                 if (pointData && pointData.personal !== null) {
-                                    return [`📅 ${pointData.date} (день ${dayNum})`, `🎯 Личный: ${pointData.personal}`, `⚠️ Штраф: ${pointData.penalty}`];
+                                    return [
+                                        `📅 ${pointData.date} (день ${dayNum})`, 
+                                        `🎯 Клановый: ${pointData.personal}`, 
+                                        `⚠️ Штраф: ${pointData.penalty}`,
+                                        `💰 Доход: ${pointData.income}`,
+                                        `🎁 Бонус: ${pointData.bonus}`,
+                                        `💳 Выплата: ${pointData.payout}`
+                                    ];
                                 }
                                 return `День ${dayNum}: нет данных`;
                             }
@@ -525,7 +546,7 @@
                 },
                 scales: {
                     x: { title: { display: true, text: 'День от старта', color: '#a0b3d9' }, ticks: { stepSize: 1, color: '#b9c4db', autoSkip: true, maxRotation: 45 }, grid: { color: '#232a36' } },
-                    y: { title: { display: true, text: 'Личный клейм', color: '#a0b3d9' }, beginAtZero: true, ticks: { color: '#b9c4db' }, grid: { color: '#232a36' } }
+                    y: { title: { display: true, text: 'Клановый клейм', color: '#a0b3d9' }, beginAtZero: true, ticks: { color: '#b9c4db' }, grid: { color: '#232a36' } }
                 }
             }
         });
