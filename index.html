@@ -6,7 +6,7 @@
     <title>Part0x - Активность игроков</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* --- Ваши стили остались без изменений --- */
+        /* --- Ваши стили без изменений --- */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -142,12 +142,6 @@
         }
 
         /* Стили для двух рядов статистики */
-        .stats-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
         .stats-card {
             background: #0e121b;
             border-radius: 28px;
@@ -157,6 +151,7 @@
             flex-wrap: wrap;
             border: 1px solid #272e3a;
             justify-content: space-between;
+            margin-bottom: 16px;
         }
         .stat {
             background: #171e2a;
@@ -243,7 +238,7 @@
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
         <div>
             <h1 style="margin: 0;">Клановая летопись</h1>
-            <div class="sub" style="margin: 0;">Личный клейм • Штрафы • Динамика по дням</div>
+            <div class="sub" style="margin: 0;">Клановый клейм • Штрафы • Динамика по дням</div>
         </div>
         <img src="logo.png" alt="Логотип клана" style="height: 60px; width: auto;">
     </div>
@@ -285,7 +280,7 @@
 
 <script>
     // ==============================================================
-    // >>> ВАША CSV ССЫЛКА (ОСТАЁТСЯ БЕЗ ИЗМЕНЕНИЙ) <<<
+    // >>> ВАША CSV ССЫЛКА <<<
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vScSYQuw234lzCGvl3JFkMjtxgqQozaoUX7212HuTqvfUcJMBnGChulTKg-KksinKaTeqwC30whYXg4/pub?gid=2047073177&single=true&output=csv&nocache=1";
     // ==============================================================
     
@@ -369,12 +364,10 @@
             if (isNaN(playerNum)) continue;
             const playerName = (row[playerNameIdx] || `Игрок ${playerNum}`).trim();
             
-            // Чтение данных
             let personal = parseFloat(row[personalIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
-            if (personal > 50000) personal = 0;
+            if (personal > 500000) personal = 0; // увеличен лимит для больших значений
             let penalty = parseFloat(row[penaltyIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
             penalty = Math.min(penalty, 10);
-            // Чтение новых финансовых полей
             let income = parseFloat(row[incomeIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
             let bonus = parseFloat(row[bonusIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
             let payout = parseFloat(row[payoutIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
@@ -386,7 +379,6 @@
             }
             const player = allPlayersData.get(playerNum);
             if (!player.dailyMap.has(dayNum)) {
-                // Сохраняем все три финансовых показателя
                 player.dailyMap.set(dayNum, { 
                     personal, penalty, date: dateStr,
                     income: income,
@@ -437,7 +429,6 @@
         if (!player) return;
 
         const weekPoints = [];
-        // Собираем точки за неделю
         for (let d = currentStartDay; d <= currentEndDay; d++) {
             const data = player.dailyMap.get(d);
             if (data) {
@@ -470,7 +461,6 @@
             document.getElementById('totalDays').innerText = '0';
             document.getElementById('sumPersonal').innerText = '0';
             document.getElementById('penaltyDays').innerText = '0';
-            // Обнуляем финансовые показатели
             document.getElementById('sumIncome').innerText = '0';
             document.getElementById('sumBonus').innerText = '0';
             document.getElementById('sumPayout').innerText = '0';
@@ -478,7 +468,6 @@
             return;
         }
 
-        // Восстанавливаем canvas если было сообщение
         const oldMsg = document.querySelector('#chartContainer .no-data-message');
         if (oldMsg) {
             document.getElementById('chartContainer').innerHTML = '<canvas id="activityChart"></canvas>';
@@ -489,7 +478,6 @@
         const sumPersonal = existing.reduce((acc, p) => acc + p.personal, 0).toFixed(0);
         const penaltyDaysCount = existing.filter(p => p.penalty > 0).length;
         
-        // Суммируем финансовые показатели за НЕДЕЛЮ
         const sumIncome = existing.reduce((acc, p) => acc + p.income, 0);
         const sumBonus = existing.reduce((acc, p) => acc + p.bonus, 0);
         const sumPayout = existing.reduce((acc, p) => acc + p.payout, 0);
@@ -501,13 +489,21 @@
         document.getElementById('sumBonus').innerText = sumBonus.toFixed(0);
         document.getElementById('sumPayout').innerText = sumPayout.toFixed(0);
 
+        // --- ДИНАМИЧЕСКАЯ ОСЬ Y ---
+        const maxPersonal = Math.max(...existing.map(p => p.personal), 0);
+        // Добавляем 10% запаса сверху + округляем вверх до тысяч
+        let yAxisMax = Math.ceil(maxPersonal * 1.1);
+        // Минимальный лимит 1000, чтобы ось не сжималась в ноль
+        if (yAxisMax < 1000) yAxisMax = 1000;
+        
+        // --- Формирование датасетов ---
         const normalPoints = weekPoints.filter(p => p.personal !== null && p.penalty === 0);
         const penalty1Points = weekPoints.filter(p => p.personal !== null && p.penalty === 1);
         const penalty3Points = weekPoints.filter(p => p.personal !== null && p.penalty >= 3);
         const linePoints = weekPoints.filter(p => p.personal !== null).map(p => ({ x: p.day, y: p.personal }));
         
         const datasets = [
-            { label: 'Личный клейм (тренд)', data: linePoints, type: 'line', borderColor: '#60a5fa', borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 0, fill: false, tension: 0.1, order: 10 },
+            { label: 'Клановый клейм (тренд)', data: linePoints, type: 'line', borderColor: '#60a5fa', borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 0, fill: false, tension: 0.1, order: 10 },
             { label: '✅ Без штрафа', data: normalPoints.map(p => ({ x: p.day, y: p.personal })), type: 'scatter', backgroundColor: '#34d399', borderColor: '#34d399', pointRadius: 6, pointHoverRadius: 9, showLine: false, order: 5 },
             { label: '⚠️ Штраф 1', data: penalty1Points.map(p => ({ x: p.day, y: p.personal })), type: 'scatter', backgroundColor: '#f97316', borderColor: '#f97316', pointRadius: 9, pointHoverRadius: 12, showLine: false, order: 4 },
             { label: '❌ Штраф 3+', data: penalty3Points.map(p => ({ x: p.day, y: p.personal })), type: 'scatter', backgroundColor: '#ef4444', borderColor: '#ef4444', pointRadius: 12, borderWidth: 3, pointHoverRadius: 15, pointStyle: 'cross', showLine: false, order: 3 }
@@ -545,8 +541,24 @@
                     legend: { position: 'top', labels: { color: '#cbd5e6', usePointStyle: true, boxWidth: 12 } }
                 },
                 scales: {
-                    x: { title: { display: true, text: 'День от старта', color: '#a0b3d9' }, ticks: { stepSize: 1, color: '#b9c4db', autoSkip: true, maxRotation: 45 }, grid: { color: '#232a36' } },
-                    y: { title: { display: true, text: 'Клановый клейм', color: '#a0b3d9' }, beginAtZero: true, suggestedMax: 210000, ticks: { color: '#b9c4db' }, grid: { color: '#232a36' } }
+                    x: { 
+                        title: { display: true, text: 'День от старта', color: '#a0b3d9' }, 
+                        ticks: { stepSize: 1, color: '#b9c4db', autoSkip: true, maxRotation: 45 }, 
+                        grid: { color: '#232a36' } 
+                    },
+                    y: { 
+                        title: { display: true, text: 'Клановый клейм', color: '#a0b3d9' }, 
+                        beginAtZero: true,
+                        suggestedMax: yAxisMax,
+                        ticks: { 
+                            color: '#b9c4db',
+                            stepSize: yAxisMax / 5,
+                            callback: function(val) {
+                                return val.toLocaleString(); // форматируем с пробелами (тысячи)
+                            }
+                        }, 
+                        grid: { color: '#232a36' } 
+                    }
                 }
             }
         });
