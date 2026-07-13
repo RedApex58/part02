@@ -278,27 +278,72 @@
 
 <script>
     // ==============================================================
-    // >>> ВАША CSV ССЫЛКА <<<
+    // >>> ВАШИ CSV ССЫЛКИ (ЗАМЕНИТЕ НА СВОИ) <<<
+    // Основной файл с данными (ежедневная статистика)
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vScSYQuw234lzCGvl3JFkMjtxgqQozaoUX7212HuTqvfUcJMBnGChulTKg-KksinKaTeqwC30whYXg4/pub?gid=2047073177&single=true&output=csv&nocache=1";
+    
+    // Файл с фиксированными выплатами (лист "Выплаты")
+    const PAYOUTS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vScSYQuw234lzCGvl3JFkMjtxgqQozaoUX7212HuTqvfUcJMBnGChulTKg-KksinKaTeqwC30whYXg4/pub?gid=1726504995&single=true&output=csv";
     // ==============================================================
     
     let allPlayersData = new Map();
+    let fixedPayouts = {};
     let minGameDay = 1;
     let maxGameDay = 1;
     let currentStartDay = 1;
     let currentEndDay = 7;
     let currentPlayerId = null;
     let chart = null;
+    let payoutsLoaded = false;
 
+    // --- Загрузка фиксированных выплат ---
+    async function loadPayouts() {
+        try {
+            const response = await fetch(PAYOUTS_URL);
+            const text = await response.text();
+            const lines = text.split(/\r?\n/);
+            if (lines.length < 2) return;
+            
+            const headers = lines[0].split(',').map(h => h.trim());
+            const playerIdx = headers.indexOf('Номер игрока');
+            const payoutIdx = headers.indexOf('Выплачено');
+            
+            if (playerIdx === -1 || payoutIdx === -1) {
+                console.warn('В файле выплат не найдены колонки "Номер игрока" или "Выплачено"');
+                return;
+            }
+            
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line === "") continue;
+                const row = line.split(',');
+                const playerNum = parseInt(row[playerIdx]);
+                const payout = parseFloat(row[payoutIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
+                if (!isNaN(playerNum)) {
+                    fixedPayouts[playerNum] = payout;
+                }
+            }
+            payoutsLoaded = true;
+            console.log('Выплаты загружены:', fixedPayouts);
+        } catch (err) {
+            console.error('Ошибка загрузки выплат:', err);
+        }
+    }
+
+    // --- Основная загрузка CSV ---
     async function loadCSV() {
         try {
-            const response = await fetch(CSV_URL);
-            const text = await response.text();
-            parseCSV(text);
+            // Загружаем выплаты параллельно с основными данными
+            await Promise.all([
+                loadPayouts(),
+                loadMainData()
+            ]);
+            
             if (allPlayersData.size === 0) {
                 document.getElementById('chartContainer').innerHTML = '<div class="no-data-message">❌ Нет данных. Проверьте CSV ссылку.</div>';
                 return;
             }
+            
             let allDays = [];
             for (let player of allPlayersData.values()) {
                 allDays.push(...player.dailyMap.keys());
@@ -310,6 +355,7 @@
                 currentStartDay = lastWeekStart;
                 currentEndDay = currentStartDay + 6;
             }
+            
             fillPlayerSelect();
             if (allPlayersData.size) {
                 const firstId = allPlayersData.keys().next().value;
@@ -319,8 +365,14 @@
             }
         } catch (err) {
             console.error(err);
-            document.getElementById('chartContainer').innerHTML = '<div class="no-data-message">⚠️ Ошибка загрузки CSV. Проверьте ссылку.</div>';
+            document.getElementById('chartContainer').innerHTML = '<div class="no-data-message">⚠️ Ошибка загрузки данных. Проверьте ссылки.</div>';
         }
+    }
+
+    async function loadMainData() {
+        const response = await fetch(CSV_URL);
+        const text = await response.text();
+        parseCSV(text);
     }
 
     function parseCSV(csvText) {
@@ -332,12 +384,10 @@
         const playerNumIdx = headers.indexOf('Номер игрока');
         const playerNameIdx = headers.indexOf('Имя игрока');
         
-        // Индексы для разных типов клейма
-        const personalIncomeIdx = headers.indexOf('Личный клейм');      // Столбец E - для Личного дохода за неделю
-        const clanContributionIdx = headers.indexOf('Клановый клейм');  // Столбец F - для графика и общей суммы в клан
+        const personalIncomeIdx = headers.indexOf('Личный клейм');
+        const clanContributionIdx = headers.indexOf('Клановый клейм');
         const penaltyIdx = headers.indexOf('Штраф');
         const bonusIdx = headers.indexOf('Бонус');
-        const payoutIdx = headers.indexOf('Выплачено');
 
         if (dayIdx === -1 || playerNumIdx === -1) return;
 
@@ -362,10 +412,7 @@
             if (isNaN(playerNum)) continue;
             const playerName = (row[playerNameIdx] || `Игрок ${playerNum}`).trim();
             
-            // Личный клейм (столбец E) — для расчёта "Личный доход за неделю"
             let personalIncome = parseFloat(row[personalIncomeIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
-            
-            // Клановый клейм (столбец F) — для графика и общей суммы в клан
             let clanContribution = parseFloat(row[clanContributionIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
             if (clanContribution > 500000) clanContribution = 0;
             
@@ -373,7 +420,6 @@
             penalty = Math.min(penalty, 10);
             
             let bonus = parseFloat(row[bonusIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
-            let payout = parseFloat(row[payoutIdx]?.replace(/,/g, '.').replace(/"/g, '')) || 0;
 
             const dateStr = (dateIdx !== -1 && row[dateIdx]) ? row[dateIdx] : `День ${dayNum}`;
             
@@ -381,7 +427,7 @@
                 allPlayersData.set(playerNum, { 
                     name: playerName, 
                     dailyMap: new Map(),
-                    totalClanContribution: 0  // сумма всех клановых клеймов за всё время
+                    totalClanContribution: 0
                 });
             }
             const player = allPlayersData.get(playerNum);
@@ -391,10 +437,8 @@
                     clanContribution: clanContribution,
                     penalty: penalty, 
                     date: dateStr,
-                    bonus: bonus,
-                    payout: payout
+                    bonus: bonus
                 });
-                // Суммируем общий вклад в клан за всё время
                 player.totalClanContribution += clanContribution;
             }
         }
@@ -439,7 +483,6 @@
         const player = allPlayersData.get(currentPlayerId);
         if (!player) return;
 
-        // Получаем данные за неделю
         const weekPoints = [];
         for (let d = currentStartDay; d <= currentEndDay; d++) {
             const data = player.dailyMap.get(d);
@@ -450,8 +493,7 @@
                     personalIncome: data.personalIncome,
                     penalty: data.penalty,
                     date: data.date,
-                    bonus: data.bonus,
-                    payout: data.payout
+                    bonus: data.bonus
                 });
             } else {
                 weekPoints.push({
@@ -460,8 +502,7 @@
                     personalIncome: null,
                     penalty: 0,
                     date: `День ${d}`,
-                    bonus: 0,
-                    payout: 0
+                    bonus: 0
                 });
             }
         }
@@ -470,6 +511,10 @@
         const weekRangeText = getWeekDateRange(currentStartDay);
         document.getElementById('weekRangeLabel').innerText = weekRangeText;
 
+        // --- Показываем фиксированную выплату ---
+        const fixedPayout = fixedPayouts[currentPlayerId] || 0;
+        document.getElementById('sumPayout').innerText = fixedPayout;
+
         if (!hasAnyData) {
             document.getElementById('chartContainer').innerHTML = '<div class="no-data-message">📭 Нет данных за эту неделю</div>';
             document.getElementById('totalDays').innerText = '0';
@@ -477,7 +522,6 @@
             document.getElementById('penaltyDays').innerText = '0';
             document.getElementById('sumIncome').innerText = '0';
             document.getElementById('sumTotalClan').innerText = '0';
-            document.getElementById('sumPayout').innerText = '0';
             if (chart) { chart.destroy(); chart = null; }
             return;
         }
@@ -490,16 +534,9 @@
         const existing = weekPoints.filter(p => p.clanContribution !== null);
         const totalDays = existing.length;
         
-        // Сумма кланового клейма за неделю (поле "Принес в казну (неделя)")
         const sumClanWeekly = existing.reduce((acc, p) => acc + p.clanContribution, 0).toFixed(0);
-        // Сумма личного клейма за неделю (поле "Личный доход")
         const sumPersonalIncomeWeekly = existing.reduce((acc, p) => acc + p.personalIncome, 0).toFixed(0);
-        // Количество дней со штрафом
         const penaltyDaysCount = existing.filter(p => p.penalty > 0).length;
-        // Сумма к выплате за неделю
-        const sumPayout = existing.reduce((acc, p) => acc + p.payout, 0).toFixed(0);
-        
-        // Общая сумма кланового клейма за всё время (из сохранённого значения)
         const totalClanAllTime = player.totalClanContribution;
 
         document.getElementById('totalDays').innerText = totalDays;
@@ -507,14 +544,11 @@
         document.getElementById('penaltyDays').innerText = penaltyDaysCount;
         document.getElementById('sumIncome').innerText = sumPersonalIncomeWeekly;
         document.getElementById('sumTotalClan').innerText = totalClanAllTime.toLocaleString();
-        document.getElementById('sumPayout').innerText = sumPayout;
 
-        // --- ДИНАМИЧЕСКАЯ ОСЬ Y (по клановому клейму) ---
         const maxClan = Math.max(...existing.map(p => p.clanContribution), 0);
         let yAxisMax = Math.ceil(maxClan * 1.1);
         if (yAxisMax < 1000) yAxisMax = 1000;
         
-        // Формирование датасетов для графика (используем clanContribution)
         const normalPoints = weekPoints.filter(p => p.clanContribution !== null && p.penalty === 0);
         const penalty1Points = weekPoints.filter(p => p.clanContribution !== null && p.penalty === 1);
         const penalty3Points = weekPoints.filter(p => p.clanContribution !== null && p.penalty >= 3);
@@ -548,8 +582,7 @@
                                         `🎯 Клановый: ${pointData.clanContribution}`, 
                                         `💰 Личный: ${pointData.personalIncome}`,
                                         `⚠️ Штраф: ${pointData.penalty}`,
-                                        `🎁 Бонус: ${pointData.bonus}`,
-                                        `💳 Выплата: ${pointData.payout}`
+                                        `🎁 Бонус: ${pointData.bonus}`
                                     ];
                                 }
                                 return `День ${dayNum}: нет данных`;
@@ -606,6 +639,7 @@
     document.getElementById('nextWeekBtn').addEventListener('click', () => navigateWeek(1));
     document.getElementById('latestWeekBtn').addEventListener('click', goToLatestWeek);
     
+    // Запуск
     loadCSV();
 </script>
 </body>
